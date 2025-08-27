@@ -1,6 +1,6 @@
 # EdgeScribe
 
-![EdgeScribe Logo](https://data-smith.ai/wp-content/uploads/2025/01/logo_transparent_background.png)
+![EdgeScribe Logo](https://github.com/user-attachments/assets/your-logo-filename)
 
 A modern web application for text summarization and translation powered by AI. EdgeScribe helps users quickly extract key information from large texts while offering optional translation services.
 
