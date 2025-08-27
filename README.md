@@ -1,7 +1,7 @@
 # EdgeScribe
 
 <div align="center">
-  <img src="[https://github.com/user-attachments/assets/your-logo-filename](https://raw.githubusercontent.com/Spamziesagcan/EdgeScribe/main/assets/preview.webp)" alt="EdgeScribe Logo" width="300"/>
+  <img src="[https://github.com/user-attachments/assets/your-logo-filename](https://www.github.com/Spamziesagcan/EdgeScribe/assets/preview.webp)" alt="EdgeScribe Logo" width="300"/>
 </div>
 
 A modern web application for text summarization and translation powered by AI. EdgeScribe helps users quickly extract key information from large texts while offering optional translation services.
