@@ -1455,9 +1455,3 @@ textarea.form-control {
         border-color: #000 !important
         }
     }
-.central-container {
-  max-width: 960px;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
