@@ -1,0 +1,47 @@
+/* EdgeScribe Summarizer - page-specific styles */
+/* Use Poppins across the page */
+body {
+    font-family: "Poppins", var(--font-sans), sans-serif
+    }
+/* Offset main content for fixed header and persistent sidebar on lg+ */
+.content-offset {
+    padding-top: 76px;
+    /* Added for centering */
+    max-width: 1200px; /* Adjust as needed */
+    margin-inline: auto;
+    padding-inline: 1rem; /* Add some horizontal padding */
+    }
+@media (min-width: 992px) {
+    .content-offset {
+        /* Removed margin-left to allow for centering */
+        /* margin-left: 280px */
+        }
+    }
+/* Make result text comfortable to read */
+#textOriginal, #textTranslated {
+    white-space: pre-wrap
+    }
+/* Table sorting cursor */
+th.sortable {
+    cursor: pointer;
+    user-select: none
+    }
+th.sortable:hover {
+    color: var(--color-primary)
+    }
+/* Button loading states */
+#btnSummarize .spinner-border {
+    --bs-spinner-width: 1rem;
+    --bs-spinner-height: 1rem
+    }
+/* Improve accordion contrast within light theme */
+.accordion-button:focus {
+    box-shadow: var(--focus-ring)
+    }
+/* Responsive tweaks for form grid */
+@media (max-width: 767.98px) {
+    #summarizationForm {
+        display: grid;
+        gap: var(--space-3)
+        }
+    }
