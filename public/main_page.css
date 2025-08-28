@@ -1,75 +1,42 @@
 /* EdgeScribe Summarizer - page-specific styles */
-
 /* Use Poppins across the page */
 body {
-  font-family: "Poppins", var(--font-sans), sans-serif;
-}
-
+    font-family: "Poppins", var(--font-sans), sans-serif
+    }
 /* Offset main content for fixed header and persistent sidebar on lg+ */
 .content-offset {
-  padding-top: 76px;
-}
-
-/* Desktop (Laptop+) layout: Center content */
+    padding-top: 76px
+    }
 @media (min-width: 992px) {
-  .content-offset {
-    margin-left: 0; /* Removed original 280px margin */
-    display: flex;
-    justify-content: center;
-    padding-top: 76px;
-  }
-  .central-container {
-    max-width: 960px;
-    width: 100%;
-    margin: 0 auto;
-  }
-}
-
-/* Mobile/tablet: Hide sidebar, full width content */
-@media (max-width: 991.98px) {
-  .sidebar {
-    display: none !important;
-  }
-  .content-offset {
-    margin-left: 0 !important;
-    padding-top: 60px; /* Adjust for shorter header */
-  }
-  .central-container {
-    max-width: 100%;
-    padding: 0 8px;
-    margin: 0 auto;
-  }
-}
-
+    .content-offset {
+        margin-left: 280px
+        }
+    }
 /* Make result text comfortable to read */
 #textOriginal, #textTranslated {
-  white-space: pre-wrap;
-}
-
+    white-space: pre-wrap
+    }
 /* Table sorting cursor */
 th.sortable {
-  cursor: pointer;
-  user-select: none;
-}
+    cursor: pointer;
+    user-select: none
+    }
 th.sortable:hover {
-  color: var(--color-primary);
-}
-
+    color: var(--color-primary)
+    }
 /* Button loading states */
 #btnSummarize .spinner-border {
-  --bs-spinner-width: 1rem;
-  --bs-spinner-height: 1rem;
-}
-
+    --bs-spinner-width: 1rem;
+    --bs-spinner-height: 1rem
+    }
 /* Improve accordion contrast within light theme */
 .accordion-button:focus {
-  box-shadow: var(--focus-ring);
-}
-
+    box-shadow: var(--focus-ring)
+    }
 /* Responsive tweaks for form grid */
 @media (max-width: 767.98px) {
-  #summarizationForm {
-    display: grid;
-    gap: var(--space-3);
-  }
-}
+    #summarizationForm {
+        display: grid;
+        gap: var(--space-3)
+        }
+    }
