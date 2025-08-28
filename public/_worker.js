@@ -1,11 +1,11 @@
-// _worker.js - For Cloudflare Pages Full-Stack Deployment (DEFINITIVE - TRANSLATE-IN-PARTS METHOD)
+// _worker.js - For Cloudflare Pages Full-Stack Deployment (DEFINITIVE - SPLIT-AND-STITCH METHOD)
 
 // =================================================================================
 // HELPER FUNCTIONS AND CONFIGURATION
 // =================================================================================
 const SUPPORTED_LANGUAGES = [ "en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "ar", "hi", "nl", "sv", "da", "no", "fi", "pl", "cs", "hu", "ro", "tr", "el", "he", "th", "vi", "id", "ms", "tl", "sw", "am", "eu", "be", "bg", "bn", "hr" ];
 const CONFIG = { MAX_TEXT_LENGTH: 5000, CACHE_TTL: 3600, AI_TIMEOUT: 30000, RATE_LIMIT_PER_IP: 60 };
-const CORS_HEADERS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, POST", "Access-Control-Allow-Headers": "Content-Type" };
+const CORS_HEADERS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Allow-Headers": "Content-Type, Authorization", "Access-Control-Max-Age": "86400" };
 class ValidationError extends Error { constructor(message) { super(message); this.name = "ValidationError"; } }
 class RateLimitError extends Error { constructor(message) { super(message); this.name = "RateLimitError"; } }
 class AIServiceError extends Error { constructor(message) { super(message); this.name = "AIServiceError"; } }
@@ -55,24 +55,25 @@ export default {
         const summaryText = summaryResponse?.summary;
         if (!summaryText) { throw new AIServiceError("Summarization failed to produce a valid response."); }
 
-        // --- DEFINITIVE "TRANSLATE-IN-PARTS" METHOD ---
+        // --- DEFINITIVE "SPLIT-AND-STITCH" METHOD ---
         
         let translatedText = summaryText;
         if (targetLang !== 'en') {
             const PROTECTED_WORDS = [ 'Harsh', 'Rocky', 'Lucky', 'Honey', 'Deep', 'Rose', 'Sunny', 'Jasmine', 'Crystal', 'Bill', 'Frank', 'Mark', 'Amber', 'Brandy', 'Brooks', 'Clay', 'Cliff', 'Dean', 'Drew', 'Duke', 'Forrest', 'Grant', 'Hunter', 'Lance', 'Miles', 'Reed', 'Rob', 'Roman', 'Rusty', 'Sky', 'Stone', 'Wade', 'Woody', 'Blaze', 'Chase', 'Chip', 'Colt', 'Dash', 'Jett', 'Link', 'Cash', 'King', 'Legend', 'Major', 'Reign', 'Royal', 'Saint', 'Wilder', 'Zen', 'Angel', 'Blue', 'Cricket', 'Destiny', 'Faith', 'Grace', 'Harmony', 'Haven', 'Heaven', 'Honor', 'Hope', 'Journey', 'Joy', 'Justice', 'Liberty', 'Melody', 'Mercy', 'Patience', 'Peace', 'Precious', 'Serenity', 'Trinity', 'True', 'Wisdom', 'Winter', 'August', 'Christian', 'Genesis', 'Noel', 'Paris', 'Reagan', 'Zion', 'Boat', 'Apple', 'Amazon', 'Google', 'Microsoft' ];
-            // This regex splits the string but KEEPS the delimiters (the names) in the resulting array.
+            // This special regex splits the string but KEEPS the delimiters (the names) in the resulting array.
             const protectedWordsRegex = new RegExp(`(${PROTECTED_WORDS.join('|')})`, 'gi');
             const fragments = summaryText.split(protectedWordsRegex);
 
             const translationPromises = fragments.map(async (fragment) => {
                 // Check if the fragment is a protected word (case-insensitive check)
                 if (fragment && PROTECTED_WORDS.some(word => word.toLowerCase() === fragment.toLowerCase())) {
-                    return fragment; // It's a protected name, return it as is.
+                    return fragment; // It's a protected name, return it as is, untranslated.
                 }
+                // If it's an empty string or just whitespace, don't call the AI.
                 if (!fragment || fragment.trim() === '') {
-                    return fragment; // It's an empty string, return it as is.
+                    return fragment;
                 }
-                // It's a normal text fragment, translate it.
+                // It's a normal text fragment, so we translate it.
                 const resp = await env.AI.run("@cf/meta/m2m100-1.2b", {
                     text: fragment,
                     source_lang: "en",
