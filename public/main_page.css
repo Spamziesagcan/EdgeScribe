@@ -1,7 +1,6 @@
 /* EdgeScribe Summarizer - page-specific styles */
 
 /* Use Poppins across the page */
-
 body {
   font-family: "Poppins", var(--font-sans), sans-serif;
 }
@@ -11,17 +10,33 @@ body {
   padding-top: 76px;
 }
 
-/* Centrally orient content for laptop and above */
+/* Desktop (Laptop+) layout: Center content */
 @media (min-width: 992px) {
   .content-offset {
-    margin-left: 0;
+    margin-left: 0; /* Removed original 280px margin */
     display: flex;
     justify-content: center;
     padding-top: 76px;
   }
   .central-container {
-    max-width: 960px; /* adjust as needed */
+    max-width: 960px;
     width: 100%;
+    margin: 0 auto;
+  }
+}
+
+/* Mobile/tablet: Hide sidebar, full width content */
+@media (max-width: 991.98px) {
+  .sidebar {
+    display: none !important;
+  }
+  .content-offset {
+    margin-left: 0 !important;
+    padding-top: 60px; /* Adjust for shorter header */
+  }
+  .central-container {
+    max-width: 100%;
+    padding: 0 8px;
     margin: 0 auto;
   }
 }
@@ -36,7 +51,6 @@ th.sortable {
   cursor: pointer;
   user-select: none;
 }
-
 th.sortable:hover {
   color: var(--color-primary);
 }
