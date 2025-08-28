@@ -3,7 +3,7 @@
 // =================================================================================
 // HELPER FUNCTIONS AND CONFIGURATION
 // =================================================================================
-const SUPPORTED_LANGUAGES = [ "en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "ar", "hi", "nl", "sv", "da", "no", "fi", "pl", "cs", "hu", "ro", "tr", "el", "he", "th", "vi", "id", "ms", "tl", "sw", "am", "eu", "be", "bg", "bn", "hr" ];
+const SUPPORTED_LANGUAGES = [ "en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "ar", "hi", "nl", "sv", "da", "no", "fi", "pl", "cs", "hu", "ro", "tr", "el", "he", "th", "vi", "id", "ms", "tl", "sw", "am", "eu", "be", "bg", "bn", "hr", "ca" ]; // Added Catalan support
 const CONFIG = { MAX_TEXT_LENGTH: 5000, CACHE_TTL: 3600, AI_TIMEOUT: 30000, RATE_LIMIT_PER_IP: 60 };
 const CORS_HEADERS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, POST", "Access-Control-Allow-Headers": "Content-Type" };
 class ValidationError extends Error { constructor(message) { super(message); this.name = "ValidationError"; } }
@@ -89,7 +89,22 @@ export default {
         // Step 1: Translate to English if needed
         let englishText = text;
         if (sourceLang !== 'en') {
-            const toEnglishResponse = await env.AI.run("@cf/meta/m2m100-1.2b", { text: text, source_lang: sourceLang, target_lang: 'en' });
+            // Handle special cases for better translation accuracy
+            let processedText = text;
+            
+            // Special handling for Catalan phrases commonly mistaken as Spanish
+            if (sourceLang === 'es' || sourceLang === 'ca') {
+                processedText = text
+                    .replace(/visca el/gi, 'long live the')
+                    .replace(/visca la/gi, 'long live the')
+                    .replace(/visca/gi, 'long live');
+            }
+            
+            const toEnglishResponse = await env.AI.run("@cf/meta/m2m100-1.2b", { 
+                text: processedText, 
+                source_lang: sourceLang === 'ca' ? 'es' : sourceLang, // Use Spanish for Catalan as fallback
+                target_lang: 'en' 
+            });
             if (!toEnglishResponse?.translated_text) { throw new AIServiceError("Failed to translate source text to English."); }
             englishText = toEnglishResponse.translated_text;
         }
