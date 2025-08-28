@@ -1,42 +1,61 @@
 /* EdgeScribe Summarizer - page-specific styles */
+
 /* Use Poppins across the page */
+
 body {
-    font-family: "Poppins", var(--font-sans), sans-serif
-    }
+  font-family: "Poppins", var(--font-sans), sans-serif;
+}
+
 /* Offset main content for fixed header and persistent sidebar on lg+ */
 .content-offset {
-    padding-top: 76px
-    }
+  padding-top: 76px;
+}
+
+/* Centrally orient content for laptop and above */
 @media (min-width: 992px) {
-    .content-offset {
-        margin-left: 280px
-        }
-    }
+  .content-offset {
+    margin-left: 0;
+    display: flex;
+    justify-content: center;
+    padding-top: 76px;
+  }
+  .central-container {
+    max-width: 960px; /* adjust as needed */
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+
 /* Make result text comfortable to read */
 #textOriginal, #textTranslated {
-    white-space: pre-wrap
-    }
+  white-space: pre-wrap;
+}
+
 /* Table sorting cursor */
 th.sortable {
-    cursor: pointer;
-    user-select: none
-    }
+  cursor: pointer;
+  user-select: none;
+}
+
 th.sortable:hover {
-    color: var(--color-primary)
-    }
+  color: var(--color-primary);
+}
+
 /* Button loading states */
 #btnSummarize .spinner-border {
-    --bs-spinner-width: 1rem;
-    --bs-spinner-height: 1rem
-    }
+  --bs-spinner-width: 1rem;
+  --bs-spinner-height: 1rem;
+}
+
 /* Improve accordion contrast within light theme */
 .accordion-button:focus {
-    box-shadow: var(--focus-ring)
-    }
+  box-shadow: var(--focus-ring);
+}
+
 /* Responsive tweaks for form grid */
 @media (max-width: 767.98px) {
-    #summarizationForm {
-        display: grid;
-        gap: var(--space-3)
-        }
-    }
+  #summarizationForm {
+    display: grid;
+    gap: var(--space-3);
+  }
+}
