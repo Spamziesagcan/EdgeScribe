@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   EdgeScribe Summarizer
+  </title>
+  <!-- Brand Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Font Awesome 6 -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <!-- Global Theme CSS (provided) -->
+  <link href="style.css" rel="stylesheet"/>
+  <!-- Page-specific CSS -->
+  <link href="main_page.css" rel="stylesheet"/>
+ </head>
+ <body class="view-grid" id="top">
+  <!-- Header (Needed on this page) -->
+  <style>
+   .eds-navbar { background: #0b1220; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .eds-navbar .navbar-brand { color: #e5e7eb; font-weight: 600; }
+    .eds-navbar .icon-btn { color: #e5e7eb; }
+    .eds-navbar .icon-btn:hover { color: #fff; background: rgba(59,130,246,0.15); }
+    .eds-navbar .health-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .eds-navbar .health-healthy { background: #22c55e; }
+    .eds-navbar .health-down { background: #ef4444; }
+    .eds-navbar .search-input::placeholder { color: #9ca3af; }
+    .eds-navbar .dropdown-menu { background: #0f172a; border-color: rgba(255,255,255,0.08); }
+    .eds-navbar .dropdown-item { color: #e5e7eb; }
+    .eds-navbar .dropdown-item:hover { background: rgba(59,130,246,0.15); color: #fff; }
+  </style>
+  <nav class="navbar navbar-expand-lg navbar-dark eds-navbar fixed-top">
+   <div class="container-fluid">
+    <button aria-controls="appSidebar" aria-label="Toggle sidebar" class="btn icon-btn d-lg-none me-2" data-bs-target="#appSidebar" data-bs-toggle="offcanvas" type="button">
+     <i class="fas fa-bars">
+     </i>
+    </button>
+    <a class="navbar-brand d-flex align-items-center gap-2" href="#top">
+     <img alt="EdgeScribe Logo" onerror="this.src='https://picsum.photos/seed/edgescribe/48/24'" src="https://data-smith.ai/wp-content/uploads/2025/01/logo_transparent_background.png" style="height:24px"/>
+     <span>
+      EdgeScribe
+     </span>
+    </a>
+    <button aria-controls="edsNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#edsNav" data-bs-toggle="collapse" type="button">
+     <span class="navbar-toggler-icon">
+     </span>
+    </button>
+    <div class="collapse navbar-collapse" id="edsNav">
+     <form class="ms-lg-3 me-auto d-none d-md-flex" role="search" style="max-width:480px;">
+      <div class="input-group">
+       <span class="input-group-text bg-transparent text-light border-secondary">
+        <i class="fas fa-search">
+        </i>
+       </span>
+       <input aria-label="Search" class="form-control bg-transparent text-light border-secondary search-input" id="pageSearch" placeholder="Search on page (e.g., language, help)" type="search"/>
+      </div>
+     </form>
+     <ul class="navbar-nav ms-auto align-items-center gap-1">
+      <li class="nav-item me-2 d-none d-sm-flex align-items-center">
+       <span class="health-dot health-healthy me-2" id="healthDot">
+       </span>
+       <span class="text-muted small" id="healthText">
+        Healthy
+       </span>
+      </li>
+      <li class="nav-item">
+       <button aria-label="Notifications" class="btn icon-btn" id="btnNotifications" title="Notifications" type="button">
+        <i class="fas fa-bell">
+        </i>
+       </button>
+      </li>
+      <li class="nav-item">
+       <button aria-label="Messages" class="btn icon-btn" id="btnMessages" title="Messages" type="button">
+        <i class="fas fa-envelope">
+        </i>
+       </button>
+      </li>
+      <li class="nav-item dropdown">
+       <a aria-expanded="false" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" href="#" role="button">
+        <i class="fas fa-user-circle fa-lg me-2">
+        </i>
+        <span class="d-none d-sm-inline">
+         Guest
+        </span>
+       </a>
+       <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+         <h6 class="dropdown-header text-secondary">
+          Public User
+         </h6>
+        </li>
+        <li>
+         <a class="dropdown-item" href="#settings">
+          <i class="fas fa-cog me-2">
+          </i>
+          Settings
+         </a>
+        </li>
+        <li>
+         <a class="dropdown-item" href="https://github.com/" rel="noreferrer" target="_blank">
+          <i class="fas fa-external-link-alt me-2">
+          </i>
+          GitHub
+         </a>
+        </li>
+        <li>
+         <hr class="dropdown-divider border-secondary"/>
+        </li>
+        <li>
+         <a class="dropdown-item" href="#help">
+          <i class="fas fa-life-ring me-2">
+          </i>
+          Help
+         </a>
+        </li>
+       </ul>
+      </li>
+     </ul>
+    </div>
+   </div>
+  </nav>
+  <!-- Sidebar (Needed on this page) -->
+  <style>
+   :root { --primary: #3B82F6; --secondary: #9a296a; --text-light: #e5e7eb; --bg-dark: #0f172a; --bg-darker: #0b1220; --hover: rgba(59,130,246,0.15); }
+    .eds-sidebar.offcanvas, .eds-sidebar.offcanvas-lg { background: var(--bg-dark); color: var(--text-light); border-right: 1px solid rgba(255,255,255,0.06); }
+    .eds-sidebar { width: 280px; }
+    .eds-sidebar .brand-area img { height: 28px; }
+    .eds-sidebar .brand-area .app-title { color: var(--text-light); font-weight: 600; }
+    .eds-sidebar .user-card { background: var(--bg-darker); border-radius: 10px; }
+    .eds-sidebar .nav .nav-link { color: var(--text-light); border-radius: 8px; }
+    .eds-sidebar .nav .nav-link:hover { background: var(--hover); color: #fff; }
+    .eds-sidebar .nav .nav-link.active { background: var(--hover); box-shadow: inset 0 0 0 2px var(--primary); color: #fff; }
+    .eds-sidebar .nav .nav-link i { width: 1.25rem; }
+    .eds-sidebar .submenu .nav-link { padding-left: 2.25rem; opacity: 0.9; }
+    .status-pill { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .status-healthy { background: #22c55e; }
+    .status-down { background: #ef4444; }
+    .quick-actions .btn { border-color: var(--primary); color: var(--text-light); }
+    .quick-actions .btn:hover { background: var(--hover); }
+  </style>
+  <div aria-labelledby="appSidebarLabel" class="offcanvas offcanvas-start offcanvas-lg text-bg-dark eds-sidebar" id="appSidebar" tabindex="-1">
+   <div class="offcanvas-header align-items-center border-bottom border-secondary">
+    <div class="d-flex align-items-center gap-2 brand-area">
+     <img alt="EdgeScribe Logo" class="me-1" onerror="this.src='https://picsum.photos/seed/edslogo/56/28'" src="https://data-smith.ai/wp-content/uploads/2025/01/logo_transparent_background.png"/>
+     <span class="app-title">
+      EdgeScribe
+     </span>
+    </div>
+    <button aria-label="Close" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" type="button">
+    </button>
+   </div>
+   <div class="offcanvas-body d-flex flex-column gap-3">
+    <div class="user-card p-3 d-flex align-items-center gap-3">
+     <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+      <i class="fas fa-user text-white">
+      </i>
+     </div>
+     <div>
+      <div class="fw-semibold">
+       Guest
+      </div>
+      <div class="text-muted small">
+       Public User
+      </div>
+     </div>
+    </div>
+    <nav class="nav flex-column gap-1">
+     <a class="nav-link px-3 py-2 active" href="#top">
+      <i class="fas fa-home me-2">
+      </i>
+      Home
+     </a>
+     <a aria-controls="navSummarize" aria-expanded="true" class="nav-link px-3 py-2" data-bs-toggle="collapse" href="#navSummarize" role="button">
+      <i class="fas fa-edit me-2">
+      </i>
+      Summarize &amp; Translate
+     </a>
+     <div class="collapse show submenu" id="navSummarize">
+      <a class="nav-link px-3 py-2" href="#summarization">
+       <i class="fas fa-language me-2">
+       </i>
+       Input &amp; Language
+      </a>
+      <a class="nav-link px-3 py-2" href="#submit">
+       <i class="fas fa-paper-plane me-2">
+       </i>
+       Submit Request
+      </a>
+     </div>
+     <a aria-controls="navResults" aria-expanded="true" class="nav-link px-3 py-2" data-bs-toggle="collapse" href="#navResults" role="button">
+      <i class="fas fa-list-alt me-2">
+      </i>
+      Results
+     </a>
+     <div class="collapse show submenu" id="navResults">
+      <a class="nav-link px-3 py-2" href="#results">
+       <i class="fas fa-list-alt me-2">
+       </i>
+       View Summaries
+      </a>
+      <a class="nav-link px-3 py-2" href="#clear">
+       <i class="fas fa-undo me-2">
+       </i>
+       Clear Output
+      </a>
+     </div>
+     <a aria-controls="navSupport" aria-expanded="false" class="nav-link px-3 py-2" data-bs-toggle="collapse" href="#navSupport" role="button">
+      <i class="fas fa-life-ring me-2">
+      </i>
+      Support &amp; Docs
+     </a>
+     <div class="collapse submenu" id="navSupport">
+      <a class="nav-link px-3 py-2" href="#help">
+       <i class="fas fa-book me-2">
+       </i>
+       Help
+      </a>
+      <a class="nav-link px-3 py-2" href="https://github.com/" rel="noreferrer" target="_blank">
+       <i class="fas fa-bug me-2">
+       </i>
+       Report Issue
+       <i class="fas fa-external-link-alt ms-1 small">
+       </i>
+      </a>
+     </div>
+     <a aria-controls="navSystem" aria-expanded="true" class="nav-link px-3 py-2" data-bs-toggle="collapse" href="#navSystem" role="button">
+      <i class="fas fa-server me-2">
+      </i>
+      System
+     </a>
+     <div class="collapse show submenu" id="navSystem">
+      <a class="nav-link px-3 py-2" href="#status">
+       <span class="status-pill status-healthy" id="sidebarStatusPill">
+       </span>
+       API Health
+      </a>
+      <a class="nav-link px-3 py-2" href="#settings">
+       <i class="fas fa-cog me-2">
+       </i>
+       Settings
+      </a>
+     </div>
+    </nav>
+    <div class="mt-auto quick-actions d-grid gap-2">
+     <button class="btn btn-outline-light w-100" onclick="window.scrollTo({top:0,behavior:'smooth'});" type="button">
+      <i class="fas fa-edit me-2">
+      </i>
+      New Summary
+     </button>
+    </div>
+   </div>
+  </div>
+  <!-- Main Content -->
+  <main class="main-panel content-offset">
+   <div class="container-fluid">
+    <div class="page-header mb-3">
+     <div class="d-flex align-items-center gap-2">
+      <img alt="EdgeScribe" onerror="this.src='https://picsum.photos/seed/eds/56/28'" src="https://data-smith.ai/wp-content/uploads/2025/01/logo_transparent_background.png" style="height:28px"/>
+      <h1 class="page-title m-0">
+       EdgeScribe Summarizer
+      </h1>
+     </div>
+     <div class="d-flex align-items-center gap-2">
+      <div class="badge-soft info">
+       <i class="fa-solid fa-language me-1">
+       </i>
+       Summarize &amp; Translate
+      </div>
+      <div class="badge-soft success d-none d-sm-inline">
+       <i class="fa-solid fa-server me-1">
+       </i>
+       <span id="headerHealthBadge">
+        Healthy
+       </span>
+      </div>
+     </div>
+    </div>
+    <!-- System feedback placeholder -->
+    <div class="mb-3" id="feedbackArea">
+    </div>
+    <!-- Summarization Form -->
+    <section class="mb-4" id="summarization">
+     <div class="app-card">
+      <div class="card-header">
+       <div class="title d-flex align-items-center gap-2">
+        <i class="fa-solid fa-edit text-primary">
+        </i>
+        <span class="widget-title">
+         Summarize your text and choose a language
+        </span>
+       </div>
+       <div>
+        <span class="text-muted small">
+         Max 5000 characters
+        </span>
+       </div>
+      </div>
+      <div class="card-body">
+       <form class="grid auto-fit-lg" id="summarizationForm">
+        <!-- Text input with counter -->
+        <div class="d-flex flex-column">
+         <label class="form-label" for="inputText">
+          Input Text
+         </label>
+         <textarea class="form-control" id="inputText" maxlength="5000" placeholder="Paste or type your content here..." required="" rows="8"></textarea>
+         <div class="d-flex align-items-center justify-content-between mt-2">
+          <small class="text-muted" id="charCounter">
+           0 / 5000
+          </small>
+          <small class="text-danger d-none" id="validationMsg">
+           <i class="fa-solid fa-triangle-exclamation me-1">
+           </i>
+           Character limit exceeded.
+          </small>
+         </div>
+        </div>
+        <!-- Language selectors -->
+        <div class="d-flex flex-column">
+            <div class="d-flex gap-3">
+                <div class="flex-grow-1">
+                    <label class="form-label" for="sourceLanguageSelect">
+                     Source Language
+                    </label>
+                    <select class="form-select" id="sourceLanguageSelect">
+                     <option selected value="en">
+                      English 🇬🇧
+                     </option>
+                     <option value="es">
+                      Spanish 🇪🇸
+                     </option>
+                     <option value="fr">
+                      French 🇫🇷
+                     </option>
+                     <option value="de">
+                      German 🇩🇪
+                     </option>
+                     <option value="it">
+                      Italian 🇮🇹
+                     </option>
+                     <option value="pt">
+                      Portuguese 🇵🇹
+                     </option>
+                     <option value="hi">
+                      Hindi 🇮🇳
+                     </option>
+                     <option value="ja">
+                      Japanese 🇯🇵
+                     </option>
+                     <option value="ko">
+                      Korean 🇰🇷
+                     </option>
+                     <option value="zh">
+                      Chinese 🇨🇳
+                     </option>
+                    </select>
+                </div>
+                <div class="flex-grow-1">
+                     <label class="form-label" for="languageSelect">
+                      Target Language
+                     </label>
+                     <select class="form-select" id="languageSelect">
+                      <option value="en">
+                       English 🇬🇧
+                      </option>
+                      <option selected value="es">
+                       Spanish 🇪🇸
+                      </option>
+                      <option value="fr">
+                       French 🇫🇷
+                      </option>
+                      <option value="de">
+                       German 🇩🇪
+                      </option>
+                      <option value="it">
+                       Italian 🇮🇹
+                      </option>
+                      <option value="pt">
+                       Portuguese 🇵🇹
+                      </option>
+                      <option value="hi">
+                       Hindi 🇮🇳
+                      </option>
+                      <option value="ja">
+                       Japanese 🇯🇵
+                      </option>
+                      <option value="ko">
+                       Korean 🇰🇷
+                      </option>
+                      <option value="zh">
+                       Chinese 🇨🇳
+                      </option>
+                     </select>
+                </div>
+            </div>
+         <div class="mt-3 d-flex gap-2 align-items-center" id="submit">
+          <button class="btn btn-primary" id="btnSummarize" type="submit">
+           <span class="btn-label">
+            <i class="fa-solid fa-paper-plane me-2">
+            </i>
+            Summarize &amp; Translate
+           </span>
+           <span class="btn-loading d-none">
+            <span aria-hidden="true" class="spinner-border spinner-border-sm me-2" role="status">
+            </span>
+            Processing...
+           </span>
+          </button>
+          <button class="btn btn-light" id="btnClear" type="button">
+           <i class="fa-solid fa-eraser me-2">
+           </i>
+           Clear
+          </button>
+         </div>
+        </div>
+    </form>
+      </div>
+     </div>
+    </section>
+    <!-- Results Display -->
+    <section class="mb-4" id="results">
+     <div class="grid auto-fit-lg">
+      <div class="app-card" id="cardOriginal" style="display:none;">
+       <div class="card-header">
+        <div class="title">
+         <span class="widget-title" id="titleOriginal">
+          Original Summary (English)
+         </span>
+        </div>
+       </div>
+       <div class="card-body">
+        <p class="mb-0 message-text" id="textOriginal">
+        </p>
+       </div>
+      </div>
+      <div class="app-card" id="cardTranslated" style="display:none;">
+       <div class="card-header">
+        <div class="title">
+         <span class="widget-title" id="titleTranslated">
+          Translated Summary
+         </span>
+        </div>
+       </div>
+       <div class="card-body">
+        <p class="mb-0 message-text" id="textTranslated">
+        </p>
+       </div>
+      </div>
+      <div class="app-card" id="cardLoading" style="display:none;">
+       <div class="card-body d-flex align-items-center gap-3">
+        <div aria-hidden="true" class="spinner-border text-primary" role="status">
+        </div>
+        <div>
+         <div class="fw-semibold">
+          Processing your request...
+         </div>
+         <div class="text-muted small">
+          This may take a few seconds.
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="app-card alert alert-danger mb-0" id="cardError" style="display:none;">
+       <div class="d-flex align-items-start gap-2">
+        <i class="fa-solid fa-circle-exclamation mt-1">
+        </i>
+        <div>
+         <div class="fw-semibold">
+          We hit a snag
+         </div>
+         <div class="small" id="errorMessage">
+          Please try again later.
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section>
+    <!-- Recent Summaries (mock data table) -->
+    <section aria-labelledby="recentSummariesHeader" class="mb-5">
+     <div class="app-card">
+      <div class="card-header">
+       <div class="title d-flex align-items-center gap-2">
+        <i class="fa-solid fa-list-ul text-primary">
+        </i>
+        <span class="widget-title" id="recentSummariesHeader">
+         Recent Summaries
+        </span>
+       </div>
+       <div class="d-flex align-items-center gap-2">
+        <select class="form-select form-select-sm" id="filterLang" style="width:auto">
+         <option value="all">
+          All Languages
+         </option>
+         <option value="en">
+          English
+         </option>
+         <option value="es">
+          Spanish
+         </option>
+         <option value="fr">
+          French
+         </option>
+         <option value="de">
+          German
+         </option>
+         <option value="ja">
+          Japanese
+         </option>
+        </select>
+        <div class="input-group input-group-sm" style="width:220px">
+         <span class="input-group-text bg-transparent">
+          <i class="fa-solid fa-search">
+          </i>
+         </span>
+         <input class="form-control" id="searchTable" placeholder="Search summary..." type="text"/>
+        </div>
+       </div>
+      </div>
+      <div class="card-body p-0">
+       <div class="table-responsive">
+        <table class="table table-theme table-hover-reveal mb-0" id="tableSummaries">
+         <thead>
+          <tr>
+           <th class="sortable" data-key="date">
+            Date
+            <i class="fa-solid fa-sort ms-1">
+            </i>
+           </th>
+           <th class="sortable text-end" data-key="chars">
+            Chars
+            <i class="fa-solid fa-sort ms-1">
+            </i>
+           </th>
+           <th class="sortable" data-key="lang">
+            Language
+            <i class="fa-solid fa-sort ms-1">
+            </i>
+           </th>
+           <th class="sortable text-end" data-key="duration">
+            Duration (ms)
+            <i class="fa-solid fa-sort ms-1">
+            </i>
+           </th>
+           <th>
+            Status
+           </th>
+           <th>
+            Actions
+           </th>
+          </tr>
+         </thead>
+         <tbody>
+         </tbody>
+        </table>
+       </div>
+      </div>
+      <div class="card-footer d-flex justify-content-between align-items-center">
+       <small class="text-muted" id="paginationInfo">
+        Showing 1–6 of 12
+       </small>
+       <div class="btn-group btn-group-sm" role="group">
+        <button class="btn btn-light" id="prevPage" type="button">
+         <i class="fa-solid fa-chevron-left">
+         </i>
+        </button>
+        <button class="btn btn-light" id="nextPage" type="button">
+         <i class="fa-solid fa-chevron-right">
+         </i>
+        </button>
+       </div>
+      </div>
+     </div>
+    </section>
+    <!-- Help -->
+    <section class="mb-5" id="help">
+     <div class="app-card">
+      <div class="card-header">
+       <div class="title d-flex align-items-center gap-2">
+        <i class="fa-solid fa-circle-question text-info">
+        </i>
+        <span class="widget-title">
+         Help
+        </span>
+       </div>
+      </div>
+      <div class="card-body">
+       <div class="accordion" id="helpAccordion">
+        <div class="accordion-item">
+         <h2 class="accordion-header" id="h1">
+          <button aria-controls="c1" aria-expanded="true" class="accordion-button" data-bs-target="#c1" data-bs-toggle="collapse" type="button">
+           How does summarization work?
+          </button>
+         </h2>
+         <div aria-labelledby="h1" class="accordion-collapse collapse show" data-bs-parent="#helpAccordion" id="c1">
+          <div class="accordion-body">
+           We send your text to the API and return a concise summary along with an optional translation into your chosen language.
+          </div>
+         </div>
+        </div>
+        <div class="accordion-item">
+         <h2 class="accordion-header" id="h2">
+          <button aria-controls="c2" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#c2" data-bs-toggle="collapse" type="button">
+           What are the limits?
+          </button>
+         </h2>
+         <div aria-labelledby="h2" class="accordion-collapse collapse" data-bs-parent="#helpAccordion" id="c2">
+          <div class="accordion-body">
+           Max input size is 5000 characters. If you exceed this, the submit button is disabled and you will see an error message.
+          </div>
+         </div>
+        </div>
+        <div class="accordion-item">
+         <h2 class="accordion-header" id="h3">
+          <button aria-controls="c3" aria-expanded="false" class="accordion-button collapsed" data-bs-target="#c3" data-bs-toggle="collapse" type="button">
+           Why do I see an error?
+          </button>
+         </h2>
+         <div aria-labelledby="h3" class="accordion-collapse collapse" data-bs-parent="#helpAccordion" id="c3">
+          <div class="accordion-body">
+           If the API rate limits or is down, you will see an error banner and a helpful message. Check the status section or try again later.
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section>
+    <!-- Status & Settings -->
+    <section class="mb-4" id="status">
+     <div class="grid auto-fit-lg">
+      <div class="app-card">
+       <div class="card-header">
+        <div class="title">
+         <span class="widget-title">
+          API Health
+         </span>
+        </div>
+       </div>
+       <div class="card-body d-flex align-items-center gap-3">
+        <span class="status-dot success" id="statusDotLarge">
+        </span>
+        <div>
+         <div class="fw-semibold" id="statusTextLarge">
+          Healthy
+         </div>
+         <small class="text-muted" id="statusSubText">
+          Last checked just now
+         </small>
+        </div>
+       </div>
+      </div>
+      <div class="app-card" id="settings">
+       <div class="card-header">
+        <div class="title">
+         <span class="widget-title">
+          Settings
+         </span>
+        </div>
+       </div>
+       <div class="card-body">
+        <div class="form-check form-switch mb-2">
+         <input checked="" class="form-check-input" id="toggleToasts" type="checkbox"/>
+         <label class="form-check-label" for="toggleToasts">
+          Show success/error toasts
+         </label>
+        </div>
+        <div class="form-check form-switch mb-2">
+         <input checked="" class="form-check-input" id="autoScrollResults" type="checkbox"/>
+         <label class="form-check-label" for="autoScrollResults">
+          Auto-scroll to results
+         </label>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section>
+    <!-- Clear anchor target -->
+    <div id="clear">
+    </div>
+   </div>
+  </main>
+  <!-- Footer (Needed on this page) -->
+  <style>
+   .eds-footer { background: #0b1220; border-top: 1px solid rgba(255,255,255,0.06); color: #e5e7eb; }
+    .eds-footer a { color: #9fbefc; text-decoration: none; }
+    .eds-footer a:hover { color: #fff; text-decoration: underline; }
+    .eds-footer .btn-link { color: #9fbefc; }
+    .eds-footer .btn-link:hover { color: #fff; text-decoration: none; background: rgba(59,130,246,0.15); }
+  </style>
+  <footer class="eds-footer py-3 mt-auto">
+   <div class="container-fluid d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+    <div class="d-flex align-items-center gap-2">
+     <img alt="EdgeScribe Logo" onerror="this.src='https://picsum.photos/seed/edgescribe-footer/40/20'" src="https://data-smith.ai/wp-content/uploads/2025/01/logo_transparent_background.png" style="height:20px"/>
+     <span class="fw-semibold">
+      EdgeScribe
+     </span>
+    </div>
+    <div class="d-flex align-items-center gap-2 order-3 order-md-2">
+     <button class="btn btn-sm btn-link" onclick="window.scrollTo({top:0,behavior:'smooth'});" type="button">
+      <i class="fas fa-arrow-up me-1">
+      </i>
+      Back to top
+     </button>
+     <a class="btn btn-sm btn-link" href="#summarization">
+      <i class="fas fa-edit me-1">
+      </i>
+      New Summary
+     </a>
+     <a class="btn btn-sm btn-link" href="https://github.com/" rel="noreferrer" target="_blank">
+      <i class="fas fa-code-branch me-1">
+      </i>
+      GitHub
+     </a>
+    </div>
+    <div class="d-flex align-items-center gap-3 order-2 order-md-3">
+     <a href="#terms">
+      Terms
+     </a>
+     <a href="#privacy">
+      Privacy
+     </a>
+    </div>
+   </div>
+  </footer>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.all.min.js">
+  </script>
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+  </script>
+  <!-- Application Logic -->
+  <script src="main_page.js" defer="">
+  </script>
+ </body>
+</html>
