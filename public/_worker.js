@@ -1,8 +1,8 @@
 // _worker.js - For Cloudflare Pages Full-Stack Deployment (FIXED TRANSLATION METHOD)
 
-// =================================================================================
+// ==================================================================================
 // HELPER FUNCTIONS AND CONFIGURATION
-// =================================================================================
+// ==================================================================================
 const SUPPORTED_LANGUAGES = [ "en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "ar", "hi", "nl", "sv", "da", "no", "fi", "pl", "cs", "hu", "ro", "tr", "el", "he", "th", "vi", "id", "ms", "tl", "sw", "am", "eu", "be", "bg", "bn", "hr", "ca" ]; // Added Catalan support
 const CONFIG = { MAX_TEXT_LENGTH: 5000, CACHE_TTL: 3600, AI_TIMEOUT: 30000, RATE_LIMIT_PER_IP: 60 };
 const CORS_HEADERS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET, POST", "Access-Control-Allow-Headers": "Content-Type" };
@@ -149,4 +149,5 @@ if (targetLang !== 'en') {
       return new Response(JSON.stringify(errorResponse), { status, headers: { "Content-Type": "application/json", ...CORS_HEADERS } });
     }
   },
+
 };
