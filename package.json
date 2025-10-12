@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p dist && cp src/index.js dist/_worker.js"
+    "build": "mkdir -p dist && cp src/index.js dist/_worker.js && cp src/index.html dist/ && cp src/main_page.css dist/ && cp src/main_page.js dist/ && cp src/style.css dist/"
   }
 }
