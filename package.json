@@ -2,7 +2,9 @@
   "name": "edgescribe",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "mkdir -p dist && cp src/index.js dist/_worker.js && cp src/index.html dist/ && cp src/main_page.css dist/ && cp src/main_page.js dist/ && cp src/style.css dist/"
+    "deploy": "wrangler pages deploy dist",
+    "build": "wrangler pages functions build --outdir dist --sourcemap"
   }
 }
