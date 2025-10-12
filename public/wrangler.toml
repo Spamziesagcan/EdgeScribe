@@ -4,8 +4,8 @@ compatibility_date = "2025-08-12"
 
 # KV Namespace binding (replace IDs with real values from dashboard)
 [[kv_namespaces]]
-binding = "EDGESCRIBE_CACHE"
-id = "28bb84cb0a19457da5f8133174212395"
+binding = "EDGESCRIBE_CONFIG"
+id = "9fd2fde75e55471ca64ce1cc9eb8d831"
 preview_id = "28bb84cb0a19457da5f8133174212395"
 
 [[kv_namespaces]]
