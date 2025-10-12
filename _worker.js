@@ -1,5 +1,5 @@
 // _worker.js - For Cloudflare Pages Full-Stack Deployment (DEBUGGED)
-
+const MODEL_TO_TEST = '@cf/meta/llama-3-8b-instruct';
 // =================================================================================
 // HELPER FUNCTIONS AND CONFIGURATION
 // =================================================================================
@@ -300,4 +300,5 @@ export default {
             return new Response(JSON.stringify(errorResponse), { status, headers: { "Content-Type": "application/json", ...CORS_HEADERS } });
         }
     },
+
 };
