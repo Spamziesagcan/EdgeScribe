@@ -12,7 +12,7 @@
 //   - '@cf/google/gemma-7b-it' (Solid all-rounder)
 //   - '@cf/facebook/bart-large-cnn' (The old baseline for comparison)
 //
-const MODEL_TO_TEST = '@cf/meta/llama-3-8b-instruct';
+const MODEL_TO_TEST = '@cf/mistral/mistral-7b-instruct-v0.1';
 
 
 // =================================================================================
@@ -161,4 +161,5 @@ export default {
     // For all other requests, serve from static assets
     return env.ASSETS.fetch(request);
   },
+
 };
