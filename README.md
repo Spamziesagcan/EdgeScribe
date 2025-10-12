@@ -138,3 +138,4 @@ For questions or suggestions, please open an issue on GitHub.
 ---
 
 **EdgeScribe** - Making text summarization and translation accessible to everyone.
+hi
