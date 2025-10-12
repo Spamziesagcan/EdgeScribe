@@ -145,29 +145,71 @@ async function translateWithProtectedWords(text, targetLang, env) {
 }
 
 async function summarizeInChunks(text, env) {
+  // Use a slightly smaller chunk size for a safety margin with tokens
   const chunks = chunkText(text, 3500);
 
+  // Handle case where no chunks are generated
+  if (!chunks || chunks.length === 0) {
+    console.error("Failed to generate any text chunks.");
+    return ""; // Return an empty string
+  }
+
+  console.log(`Summarizing text in ${chunks.length} chunk(s).`);
+
+  // Run summarization on each chunk, but handle individual failures
   const summaryPromises = chunks.map(chunk =>
     env.AI.run("@cf/facebook/bart-large-cnn", {
       input_text: chunk,
-      max_length: 150, // Shorter summaries for each chunk
+      max_length: 150,
+    })
+    .catch(err => {
+      // If a single chunk fails, log the error and return null
+      // This prevents Promise.all from failing the entire request
+      console.error("Error summarizing a chunk:", err);
+      return null;
     })
   );
 
-  const chunkSummaries = await Promise.all(summaryPromises);
+  const chunkSummaryResponses = await Promise.all(summaryPromises);
 
-  const combinedSummaries = chunkSummaries.map(summary => summary.summary).join(" ");
+  // Filter out any nulls (from failed chunks) and safely access the summary text
+  const combinedSummaries = chunkSummaryResponses
+    .filter(response => response && response.summary) // Ensure response and summary property exist
+    .map(response => response.summary)
+    .join(" ");
 
-  if (combinedSummaries.length < 100) {
+  // Handle case where all chunk summaries failed
+  if (!combinedSummaries || combinedSummaries.trim().length === 0) {
+    console.error("All chunk summaries failed or were empty.");
+    // As a fallback, return the first 3 sentences of the original text
+    return text.split(/[.!?]+/).slice(0, 3).join('. ').trim() + '.';
+  }
+
+  // If the combined summary is short enough, no need to summarize it again
+  if (chunks.length === 1 || combinedSummaries.length < 500) {
+    console.log("Combined summary is short enough, returning as is.");
     return combinedSummaries;
   }
 
-  const finalSummary = await env.AI.run("@cf/facebook/bart-large-cnn", {
-    input_text: "Concisely summarize the following points: " + combinedSummaries,
-    max_length: 300, // Longer final summary
-  });
+  console.log("Generating final summary from combined chunk summaries.");
+  try {
+    const finalSummaryResponse = await env.AI.run("@cf/facebook/bart-large-cnn", {
+      input_text: "Concisely summarize the following points: " + combinedSummaries,
+      max_length: 300,
+    });
 
-  return finalSummary.summary;
+    // Final check to ensure the last step succeeded
+    if (finalSummaryResponse && finalSummaryResponse.summary) {
+      return finalSummaryResponse.summary;
+    } else {
+      console.log("Final summary generation failed. Falling back to combined summaries.");
+      return combinedSummaries; // A very good fallback
+    }
+  } catch (err) {
+    console.error("Error during final summarization step:", err);
+    // If the final step fails, the combined summary is still a valuable result.
+    return combinedSummaries;
+  }
 }
 
 // =================================================================================
@@ -331,4 +373,5 @@ function deduplicateSummary(summaryText) {
       });
     }
   },
+
 };
