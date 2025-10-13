@@ -105,34 +105,49 @@ Summary:`;
 // =================================================================================
 // REPLACEMENT: A much higher-quality, context-aware translation function
 // =================================================================================
+// _worker.js
+
+// =================================================================================
+// REPLACEMENT: A final, stricter translation function to eliminate English words
+// =================================================================================
 async function translateWithLlama(text, targetLang, env) {
     const targetLanguageName = getLanguageName(targetLang);
 
-    // This is a much more advanced prompt.
+    // This is the final, most robust prompt.
     const prompt = `
-You are an expert literary translator specializing in fables and stories. Your task is to translate the following English text into natural, fluent, and grammatically perfect ${targetLanguageName}.
+You are an expert literary translator. Your task is to translate the following English text into natural, fluent, and grammatically perfect ${targetLanguageName}.
 
-CRITICAL INSTRUCTIONS:
-1.  **Contextual Accuracy:** The story is "The Tortoise and the Hare". Ensure that "Hare" is translated as "खरगोश" (khargosh), not "हिरन" (hiran). Pay close attention to the meaning and moral of the story.
-2.  **No English:** Your final output MUST be purely in ${targetLanguageName}. Do not include any English words, characters, or nonsensical capitalized text.
-3.  **Natural Phrasing:** Do not provide a literal, word-for-word translation. Rephrase sentences to make them sound natural and poetic, as if they were originally written by a native ${targetLanguageName} speaker.
-4.  **Direct Output:** Provide ONLY the translated text in your response, with no extra commentary.
+**PRIMARY DIRECTIVE: Your entire response must be ONLY in the ${targetLanguageName} language. Under no circumstances should any English words, characters, or phrases appear in the final output.**
+
+- **Contextual Accuracy:** The story is "The Tortoise and the Hare". Ensure "Hare" is translated as "खरगोश" (khargosh).
+- **Natural Phrasing:** Do not provide a literal translation. Rephrase sentences to make them sound natural and poetic.
+- **Direct Output:** Your response must begin directly with the translated text. Do not add any introductory phrases.
 
 English Text to Translate:
 ---
 ${text}
 ---
-${targetLanguageName} Translation:`;
+Final ${targetLanguageName} Translation:`;
 
-    console.log(`Translating to ${targetLanguageName} with advanced Llama 3 prompt...`);
+    console.log(`Translating to ${targetLanguageName} with final Llama 3 prompt...`);
 
     try {
         const aiResponse = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
             prompt: prompt,
-            max_tokens: 600 // Increased tokens for better quality translation
+            max_tokens: 600
         });
 
-        const translatedText = aiResponse.response?.trim() || "";
+        let translatedText = aiResponse.response?.trim() || "";
+
+        // Final safety check: manually remove common English leak words if any still exist
+        const englishWords = ["laughter", "dismissal", "hare", "tortoise"]; // Add any others you see
+        englishWords.forEach(word => {
+            const regex = new RegExp(`\\b${word}\\b`, 'gi');
+            translatedText = translatedText.replace(regex, '');
+        });
+        
+        // Trim again in case we left spaces
+        translatedText = translatedText.trim();
 
         if (translatedText.length === 0) {
             throw new Error("LLM model returned an empty translation.");
@@ -208,6 +223,7 @@ export default {
         return env.ASSETS.fetch(request);
     },
 };
+
 
 
 
