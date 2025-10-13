@@ -71,7 +71,7 @@ function deduplicateSummary(summaryText) {
 }
 
 function getLanguageName(code) {
-    const languageMap = { 'hi': 'Hindi', 'es': 'Spanish', 'fr': 'French', 'de': 'German', 'it': 'Italian', 'pt': 'Portuguese', 'ru': 'Russian', 'ja': 'Japanese', 'ko': 'Korean', 'zh': 'Chinese', 'ar': 'Arabic', 'nl': 'Dutch' };
+    const languageMap = { 'hi': 'Hindi', 'gu': 'Gujarati', 'mr': 'Marathi', 'es': 'Spanish', 'fr': 'French', 'de': 'German', 'it': 'Italian', 'pt': 'Portuguese', 'ru': 'Russian', 'ja': 'Japanese', 'ko': 'Korean', 'zh': 'Chinese', 'ar': 'Arabic', 'nl': 'Dutch' };
     return languageMap[code] || code;
 }
 
@@ -183,4 +183,5 @@ export default {
         return env.ASSETS.fetch(request);
     },
 };
+
 
