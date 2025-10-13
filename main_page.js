@@ -1,6 +1,9 @@
-// main_page.js (UPDATED FOR DUAL LANGUAGE)
-// main_page.js
+// main_page.js - Complete Frontend Logic for EdgeScribe
 
+// =================================================================
+// 1. LANGUAGE CONFIGURATION
+// Single source of truth for all supported languages.
+// =================================================================
 const SUPPORTED_LANGUAGES = [
     { code: 'en', name: 'English' },
     { code: 'es', name: 'Spanish' },
@@ -9,258 +12,187 @@ const SUPPORTED_LANGUAGES = [
     { code: 'hi', name: 'Hindi (हिन्दी)' },
     { code: 'gu', name: 'Gujarati (ગુજરાતી)' },
     { code: 'mr', name: 'Marathi (मराठी)' },
-    // Add all your other supported languages here
+    { code: 'it', name: 'Italian' },
+    { code: 'ja', name: 'Japanese' },
+    { code: 'ko', name: 'Korean' },
+    { code: 'pt', name: 'Portuguese' },
+    { code: 'ru', name: 'Russian' },
+    { code: 'zh', name: 'Chinese' },
+    { code: 'ar', name: 'Arabic' },
 ];
-const API_BASE_URL = '';
 
-document.documentElement.style.setProperty('--font-sans', "Poppins, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'");
-
-const toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2200, timerProgressBar: true });
-const showToast = (icon, title) => { if (document.getElementById('toggleToasts').checked) toast.fire({ icon, title }); };
-
-async function checkHealth() {
-    const healthDot = document.getElementById('healthDot');
-    const healthText = document.getElementById('healthText');
-    const sidebarPill = document.getElementById('sidebarStatusPill');
-    const headerBadge = document.getElementById('headerHealthBadge');
-    const statusDotLarge = document.getElementById('statusDotLarge');
-    const statusTextLarge = document.getElementById('statusTextLarge');
-    const statusSubText = document.getElementById('statusSubText');
-    const start = Date.now();
-    try {
-        const res = await fetch(`${API_BASE_URL}/health`, { cache: 'no-store' });
-        const ok = res.ok;
-        const state = ok ? 'healthy' : 'down';
-        applyHealthState(state);
-        statusSubText.textContent = `Last checked ${Math.max(1, Math.round((Date.now()-start)/1000))}s ago`;
-    } catch (e) {
-        applyHealthState('down');
-        statusSubText.textContent = 'Last check failed';
-    }
-    function applyHealthState(state) {
-        const healthy = state === 'healthy';
-        healthDot.classList.toggle('health-healthy', healthy);
-        healthDot.classList.toggle('health-down', !healthy);
-        healthText.textContent = healthy ? 'Healthy' : 'Down';
-        sidebarPill.classList.toggle('status-healthy', healthy);
-        sidebarPill.classList.toggle('status-down', !healthy);
-        headerBadge.textContent = healthy ? 'Healthy' : 'Down';
-        statusDotLarge.classList.toggle('success', healthy);
-        statusDotLarge.classList.toggle('error', !healthy);
-        statusTextLarge.textContent = healthy ? 'Healthy' : 'Down';
-    }
-}
-checkHealth();
-setInterval(checkHealth, 10000);
-
-document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => { Swal.fire({ icon: 'info', title: 'Theme', text: 'Dark theme coming soon!', confirmButtonColor: '#3B82F6' }); });
-
-const themeBtn = document.getElementById('themeToggleBtn');
-const themeIcon = document.getElementById('themeIcon');
-
-if (themeBtn) {
-  themeBtn.addEventListener('click', function() {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    themeIcon.textContent = isDark ? '🌙' : '☀️';
-  });
-
-  // On load
-  if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark-mode');
-    themeIcon.textContent = '🌙';
-  } else {
-    themeIcon.textContent = '☀️';
-  }
-}
-
+// =================================================================
+// 2. DOM ELEMENT REFERENCES
+// Get references to all the HTML elements we need to interact with.
+// These IDs are taken directly from your index.html file.
+// =================================================================
+const summarizationForm = document.getElementById('summarizationForm');
 const inputText = document.getElementById('inputText');
 const charCounter = document.getElementById('charCounter');
-const validationMsg = document.getElementById('validationMsg');
-const btnSummarize = document.getElementById('btnSummarize');
-const btnClear = document.getElementById('btnClear');
-const languageSelect = document.getElementById('languageSelect');
-const sourceLanguageSelect = document.getElementById('sourceLanguageSelect'); // NEW
+const sourceSelect = document.getElementById('sourceLanguageSelect');
+const targetSelect = document.getElementById('languageSelect'); // CORRECT ID USED HERE
+const summarizeButton = document.getElementById('btnSummarize');
+const clearButton = document.getElementById('btnClear');
 
-function updateCounter() {
-    const len = inputText.value.length;
-    charCounter.textContent = `${len} / 5000`;
-    const over = len > 5000;
-    validationMsg.classList.toggle('d-none', !over);
-    btnSummarize.disabled = over || len === 0 || isSubmitting;
-    charCounter.classList.toggle('text-danger', over);
-}
-inputText.addEventListener('input', updateCounter);
-inputText.addEventListener('paste', () => setTimeout(updateCounter));
-
-let isSubmitting = false;
-const cardOriginal = document.getElementById('cardOriginal');
-const cardTranslated = document.getElementById('cardTranslated');
+// Result Cards
 const cardLoading = document.getElementById('cardLoading');
 const cardError = document.getElementById('cardError');
+const cardOriginal = document.getElementById('cardOriginal');
+const cardTranslated = document.getElementById('cardTranslated');
+
+// Result Text Elements
+const errorMessage = document.getElementById('errorMessage');
 const textOriginal = document.getElementById('textOriginal');
 const textTranslated = document.getElementById('textTranslated');
-const titleOriginal = document.getElementById('titleOriginal');
 const titleTranslated = document.getElementById('titleTranslated');
-const errorMessage = document.getElementById('errorMessage');
 
-function setSubmitting(state) {
-    isSubmitting = state;
-    btnSummarize.disabled = state || inputText.value.length === 0 || inputText.value.length > 5000;
-    btnSummarize.querySelector('.btn-label').classList.toggle('d-none', state);
-    btnSummarize.querySelector('.btn-loading').classList.toggle('d-none', !state);
-}
 
-document.getElementById('summarizationForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (inputText.value.trim().length === 0 || inputText.value.length > 5000) return;
-    cardError.style.display = 'none';
-    cardOriginal.style.display = 'none';
-    cardTranslated.style.display = 'none';
-    cardLoading.style.display = '';
-    setSubmitting(true);
+// =================================================================
+// 3. CORE FUNCTIONS
+// =================================================================
 
-    // NEW: Payload now includes sourceLang
-    const payload = {
-        text: inputText.value.trim(),
-        sourceLang: sourceLanguageSelect.value,
-        targetLang: languageSelect.value
-    };
-
-    try {
-        const res = await fetch(`${API_BASE_URL}/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        
-        if (!res.ok) {
-             const errorData = await res.json().catch(() => ({ error: `Server responded with status ${res.status}` }));
-             throw new Error(errorData.error);
-        }
-
-        const data = await res.json();
-        
-        const orig = data.summary;
-        const trans = data.translated;
-
-        // NEW: Dynamic title for the original summary
-        titleOriginal.textContent = 'Original Summary (English)';
-        titleTranslated.textContent = `Translated Summary (${languageSelect.options[languageSelect.selectedIndex].text})`;
-        textOriginal.textContent = orig;
-        textTranslated.textContent = trans;
-        cardLoading.style.display = 'none';
-        cardOriginal.style.display = '';
-        cardTranslated.style.display = '';
-        showToast('success', 'Summary ready');
-        if (document.getElementById('autoScrollResults').checked) document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-        
-        addMockRow({
-            date: new Date().toISOString(),
-            chars: inputText.value.length,
-            lang: languageSelect.value,
-            duration: Math.floor(200 + Math.random() * 600),
-            status: 'OK',
-            snippet: orig.slice(0, 64) + (orig.length > 64 ? '…' : '')
-        });
-    } catch (err) {
-        cardLoading.style.display = 'none';
-        errorMessage.textContent = mapErrorMessage(err);
-        cardError.style.display = '';
-        showToast('error', 'Request failed');
-    } finally {
-        setSubmitting(false);
-    }
-});
-
-function mapErrorMessage(err) {
-    const msg = (err && err.message) ? err.message : 'An unexpected error occurred.';
-    if (/rate limit/i.test(msg)) return 'You have reached the rate limit. Please wait and try again.';
-    if (/network/i.test(msg)) return 'A network error occurred. Please check your connection.';
-    return msg;
-}
-
-btnClear.addEventListener('click', () => {
-    inputText.value = '';
-    updateCounter();
-    cardOriginal.style.display = 'none';
-    cardTranslated.style.display = 'none';
-    cardLoading.style.display = 'none';
-    cardError.style.display = 'none';
-    document.getElementById('clear').scrollIntoView({ behavior: 'smooth' });
-});
-
-document.getElementById('btnNotifications').addEventListener('click', () => showToast('info', 'No new notifications'));
-document.getElementById('btnMessages').addEventListener('click', () => showToast('info', 'No new messages'));
-
-document.getElementById('pageSearch').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        const q = e.target.value.toLowerCase();
-        if (!q) return;
-        const targets = ['summarization', 'results', 'help', 'status', 'settings'];
-        const found = targets.find(id => id.includes(q));
-        if (found) document.getElementById(found)?.scrollIntoView({ behavior: 'smooth' });
-    }
-});
-
-const tableData = [{ date: '2025-01-20T10:24:00Z', chars: 1123, lang: 'en', duration: 245, status: 'OK', snippet: 'Executive summary of quarterly performance…' }, { date: '2025-01-19T14:12:00Z', chars: 4922, lang: 'es', duration: 612, status: 'OK', snippet: 'Resumen del informe técnico de la API…' }, { date: '2025-01-18T09:03:00Z', chars: 387, lang: 'fr', duration: 210, status: 'OK', snippet: 'Résumé de la note de réunion…' }];
-const pageSize = 6;
-let currentPage = 1;
-let sortKey = 'date';
-let sortDir = 'desc';
-let filterLang = 'all';
-let searchTerm = '';
-
-function renderTable() {
-    const tbody = document.querySelector('#tableSummaries tbody');
-    if (!tbody) return;
-    let rows = tableData
-        .filter(r => filterLang === 'all' ? true : r.lang === filterLang)
-        .filter(r => searchTerm ? (r.snippet.toLowerCase().includes(searchTerm) || r.lang.includes(searchTerm)) : true)
-        .sort((a, b) => { let va = a[sortKey], vb = b[sortKey]; if (sortKey === 'date') { va = new Date(va).getTime(); vb = new Date(vb).getTime(); } if (va < vb) return sortDir === 'asc' ? -1 : 1; if (va > vb) return sortDir === 'asc' ? 1 : -1; return 0; });
-    const total = rows.length;
-    const startIdx = (currentPage - 1) * pageSize;
-    const pageRows = rows.slice(startIdx, startIdx + pageSize);
-    tbody.innerHTML = pageRows.map(r => rowHtml(r)).join('');
-    document.getElementById('paginationInfo').textContent = `Showing ${Math.min(total, startIdx+1)}–${Math.min(total, startIdx + pageSize)} of ${total}`;
-    tbody.querySelectorAll('[data-action="copy"]').forEach(btn => btn.addEventListener('click', () => { navigator.clipboard.writeText(btn.getAttribute('data-snippet') || '').then(() => showToast('success', 'Copied')); }));
-    tbody.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
-}
-function rowHtml(r) { const date = new Date(r.date).toLocaleString(); const langLabel = ({ en: 'English', es: 'Spanish', fr: 'French', de: 'German', ja: 'Japanese' })[r.lang] || r.lang; return `<tr><td>${date}</td><td class="text-end">${r.chars.toLocaleString()}</td><td>${langLabel}</td><td class="text-end">${r.duration.toLocaleString()}</td><td><span class="badge-soft success">OK</span></td><td><div class="btn-group btn-group-sm" role="group"><button class="btn btn-light" type="button" data-bs-toggle="tooltip" title="View"><i class="fa-regular fa-eye"></i></button><button class="btn btn-light" type="button" data-action="copy" data-snippet="${r.snippet.replace(/"/g,'&quot;')}"><i class="fa-regular fa-clipboard"></i></button></div></td></tr>`; }
-function changeSort(key) { if (sortKey === key) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; } else { sortKey = key; sortDir = 'asc'; } currentPage = 1; renderTable(); }
-document.querySelectorAll('#tableSummaries thead th.sortable').forEach(th => th.addEventListener('click', () => changeSort(th.dataset.key)));
-document.getElementById('filterLang').addEventListener('change', (e) => { filterLang = e.target.value; currentPage = 1; renderTable(); });
-document.getElementById('searchTable').addEventListener('input', (e) => { searchTerm = e.target.value.trim().toLowerCase(); currentPage = 1; renderTable(); });
-document.getElementById('prevPage').addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderTable(); } });
-document.getElementById('nextPage').addEventListener('click', () => { const total = tableData.filter(r => filterLang === 'all' ? true : r.lang === filterLang).length; const maxPage = Math.ceil(total / pageSize); if (currentPage < maxPage) { currentPage++; renderTable(); } });
-function addMockRow(r) { tableData.unshift(r); renderTable(); }
-updateCounter();
-renderTable();
-
-// This function will build the dropdowns when the page loads
+/**
+ * Populates the language dropdowns from our SUPPORTED_LANGUAGES list.
+ */
 function populateLanguageDropdowns() {
-    const sourceSelect = document.getElementById('source-language-select');
-    const targetSelect = document.getElementById('target-language-select');
+    if (!sourceSelect || !targetSelect) {
+        console.error("Fatal Error: Could not find language select elements in the HTML.");
+        return;
+    }
 
     SUPPORTED_LANGUAGES.forEach(lang => {
-        // Create an option for the source dropdown
-        const sourceOption = document.createElement('option');
-        sourceOption.value = lang.code;
-        sourceOption.textContent = lang.name;
-        sourceSelect.appendChild(sourceOption);
+        const option = document.createElement('option');
+        option.value = lang.code;
+        option.textContent = lang.name;
 
-        // Create an option for the target dropdown
-        const targetOption = document.createElement('option');
-        targetOption.value = lang.code;
-        targetOption.textContent = lang.name;
-        targetSelect.appendChild(targetOption);
+        sourceSelect.appendChild(option.cloneNode(true));
+        targetSelect.appendChild(option);
     });
 
-    // Optional: Set default selected values
+    // Set default values
     sourceSelect.value = 'en';
     targetSelect.value = 'hi';
 }
 
-// Run this function once the HTML document is fully loaded
-document.addEventListener('DOMContentLoaded', populateLanguageDropdowns);
+/**
+ * Handles the form submission, calls the backend worker, and manages UI states.
+ * @param {Event} event - The form submission event.
+ */
+async function handleSummarize(event) {
+    event.preventDefault(); // Prevent the form from reloading the page
+
+    const text = inputText.value;
+    const sourceLang = sourceSelect.value;
+    const targetLang = targetSelect.value;
+
+    if (text.trim().length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Input Required',
+            text: 'Please enter some text to summarize.',
+        });
+        return;
+    }
+
+    // --- Show Loading State ---
+    summarizeButton.disabled = true;
+    summarizeButton.querySelector('.btn-label').classList.add('d-none');
+    summarizeButton.querySelector('.btn-loading').classList.remove('d-none');
+    cardLoading.style.display = 'block';
+    cardError.style.display = 'none';
+    cardOriginal.style.display = 'none';
+    cardTranslated.style.display = 'none';
+
+    try {
+        const response = await fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, sourceLang, targetLang }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        displayResults(data);
+
+    } catch (error) {
+        console.error('API Call Failed:', error);
+        displayError(error.message);
+    } finally {
+        // --- Hide Loading State ---
+        summarizeButton.disabled = false;
+        summarizeButton.querySelector('.btn-label').classList.remove('d-none');
+        summarizeButton.querySelector('.btn-loading').classList.add('d-none');
+        cardLoading.style.display = 'none';
+    }
+}
+
+/**
+ * Displays the successful results in the UI cards.
+ * @param {object} data - The data object from the API response.
+ */
+function displayResults(data) {
+    textOriginal.textContent = data.summary;
+    cardOriginal.style.display = 'block';
+
+    if (data.translated && data.target_language !== 'en') {
+        const targetLanguage = SUPPORTED_LANGUAGES.find(l => l.code === data.target_language);
+        titleTranslated.textContent = `Translated Summary (${targetLanguage.name})`;
+        textTranslated.textContent = data.translated;
+        cardTranslated.style.display = 'block';
+    } else {
+        cardTranslated.style.display = 'none';
+    }
+}
+
+/**
+ * Displays an error message in the UI.
+ * @param {string} message - The error message to display.
+ */
+function displayError(message) {
+    errorMessage.textContent = message;
+    cardError.style.display = 'block';
+}
+
+/**
+ * Updates the character counter as the user types.
+ */
+function updateCharCounter() {
+    const count = inputText.value.length;
+    charCounter.textContent = `${count} / 5000`;
+}
+
+/**
+ * Clears all input and output fields.
+ */
+function clearAll() {
+    inputText.value = '';
+    updateCharCounter();
+    cardOriginal.style.display = 'none';
+    cardTranslated.style.display = 'none';
+    cardError.style.display = 'none';
+    sourceSelect.value = 'en';
+    targetSelect.value = 'hi';
+}
+
+// =================================================================
+// 4. EVENT LISTENERS
+// Set up all the event handlers for the page.
+// =================================================================
+
+function initialize() {
+    populateLanguageDropdowns();
+
+    // Attach event listeners
+    summarizationForm.addEventListener('submit', handleSummarize);
+    inputText.addEventListener('input', updateCharCounter);
+    clearButton.addEventListener('click', clearAll);
+}
+
+// =================================================================
+// 5. START THE APPLICATION
+// =================================================================
+initialize();
