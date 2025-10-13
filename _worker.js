@@ -103,25 +103,21 @@ Summary:`;
 // _worker.js
 
 // =================================================================================
-// REPLACEMENT: A much higher-quality, context-aware translation function
-// =================================================================================
-// _worker.js
-
-// =================================================================================
-// REPLACEMENT: A final, stricter translation function to eliminate English words
+// FINAL: A general-purpose, high-quality translation function
 // =================================================================================
 async function translateWithLlama(text, targetLang, env) {
     const targetLanguageName = getLanguageName(targetLang);
 
-    // This is the final, most robust prompt.
+    // This is the new, universal prompt. It is not tied to any specific story.
     const prompt = `
-You are an expert literary translator. Your task is to translate the following English text into natural, fluent, and grammatically perfect ${targetLanguageName}.
+You are an expert, multilingual translator. Your task is to translate the following English text into natural, fluent, and grammatically perfect ${targetLanguageName}.
 
-**PRIMARY DIRECTIVE: Your entire response must be ONLY in the ${targetLanguageName} language. Under no circumstances should any English words, characters, or phrases appear in the final output.**
+**PRIMARY DIRECTIVE: Your entire response MUST consist ONLY of the translated text in the ${targetLanguageName} language. Under no circumstances should any English words, characters, or phrases appear in the final output.**
 
-- **Contextual Accuracy:** The story is "The Tortoise and the Hare". Ensure "Hare" is translated as "खरगोश" (khargosh).
-- **Natural Phrasing:** Do not provide a literal translation. Rephrase sentences to make them sound natural and poetic.
-- **Direct Output:** Your response must begin directly with the translated text. Do not add any introductory phrases.
+KEY INSTRUCTIONS:
+1.  **Context is King:** Pay close attention to the context to ensure the correct meaning of words and concepts. Do not choose a translation that is literally correct but contextually wrong.
+2.  **Prioritize Fluency:** Do not provide a robotic, word-for-word translation. Rephrase sentences as a native speaker would to ensure they are natural and fluent.
+3.  **Direct Output:** Your response must begin directly with the translated text. Do not add any introductory phrases or commentary.
 
 English Text to Translate:
 ---
@@ -129,25 +125,15 @@ ${text}
 ---
 Final ${targetLanguageName} Translation:`;
 
-    console.log(`Translating to ${targetLanguageName} with final Llama 3 prompt...`);
+    console.log(`Translating to ${targetLanguageName} with the final universal prompt...`);
 
     try {
         const aiResponse = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
             prompt: prompt,
-            max_tokens: 600
+            max_tokens: 700 // Generous token limit for longer translations
         });
 
-        let translatedText = aiResponse.response?.trim() || "";
-
-        // Final safety check: manually remove common English leak words if any still exist
-        const englishWords = ["laughter", "dismissal", "hare", "tortoise"]; // Add any others you see
-        englishWords.forEach(word => {
-            const regex = new RegExp(`\\b${word}\\b`, 'gi');
-            translatedText = translatedText.replace(regex, '');
-        });
-        
-        // Trim again in case we left spaces
-        translatedText = translatedText.trim();
+        const translatedText = aiResponse.response?.trim() || "";
 
         if (translatedText.length === 0) {
             throw new Error("LLM model returned an empty translation.");
@@ -156,7 +142,7 @@ Final ${targetLanguageName} Translation:`;
         return translatedText;
 
     } catch (err) {
-        console.error(`Error during translation with Llama 3:`, err);
+        console.error(`Error during universal translation with Llama 3:`, err);
         // Fallback to the simpler model if the powerful one fails
         console.log("Falling back to the basic translation model.");
         const fallbackResponse = await env.AI.run("@cf/meta/m2m100-1.2b", { text, source_lang: "en", target_lang: targetLang });
@@ -223,6 +209,7 @@ export default {
         return env.ASSETS.fetch(request);
     },
 };
+
 
 
 
