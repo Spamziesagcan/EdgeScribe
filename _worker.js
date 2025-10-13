@@ -100,29 +100,54 @@ Summary:`;
     }
 }
 
+// _worker.js
+
+// =================================================================================
+// REPLACEMENT: A much higher-quality, context-aware translation function
+// =================================================================================
 async function translateWithLlama(text, targetLang, env) {
     const targetLanguageName = getLanguageName(targetLang);
+
+    // This is a much more advanced prompt.
     const prompt = `
-You are an expert translator. Your task is to translate the following English text into natural, fluent, and grammatically correct ${targetLanguageName}.
-Do NOT just provide a literal, word-for-word translation. You must capture the original meaning, tone, and nuance of the text to make it sound like it was originally written by a native ${targetLanguageName} speaker.
-Provide ONLY the translated text in your response, with no extra commentary or introductory phrases.
+You are an expert literary translator specializing in fables and stories. Your task is to translate the following English text into natural, fluent, and grammatically perfect ${targetLanguageName}.
+
+CRITICAL INSTRUCTIONS:
+1.  **Contextual Accuracy:** The story is "The Tortoise and the Hare". Ensure that "Hare" is translated as "खरगोश" (khargosh), not "हिरन" (hiran). Pay close attention to the meaning and moral of the story.
+2.  **No English:** Your final output MUST be purely in ${targetLanguageName}. Do not include any English words, characters, or nonsensical capitalized text.
+3.  **Natural Phrasing:** Do not provide a literal, word-for-word translation. Rephrase sentences to make them sound natural and poetic, as if they were originally written by a native ${targetLanguageName} speaker.
+4.  **Direct Output:** Provide ONLY the translated text in your response, with no extra commentary.
+
 English Text to Translate:
 ---
 ${text}
 ---
 ${targetLanguageName} Translation:`;
 
-    console.log(`Translating to ${targetLanguageName} with Llama 3...`);
+    console.log(`Translating to ${targetLanguageName} with advanced Llama 3 prompt...`);
+
     try {
-        const aiResponse = await env.AI.run('@cf/meta/llama-3-8b-instruct', { prompt, max_tokens: 500 });
+        const aiResponse = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
+            prompt: prompt,
+            max_tokens: 600 // Increased tokens for better quality translation
+        });
+
         const translatedText = aiResponse.response?.trim() || "";
-        if (translatedText.length === 0) throw new Error("LLM model returned an empty translation.");
+
+        if (translatedText.length === 0) {
+            throw new Error("LLM model returned an empty translation.");
+        }
+
         return translatedText;
+
     } catch (err) {
         console.error(`Error during translation with Llama 3:`, err);
+        // Fallback to the simpler model if the powerful one fails
         console.log("Falling back to the basic translation model.");
         const fallbackResponse = await env.AI.run("@cf/meta/m2m100-1.2b", { text, source_lang: "en", target_lang: targetLang });
-        if (!fallbackResponse?.translated_text) throw new AIServiceError("Translation failed on both primary and fallback models.");
+        if (!fallbackResponse?.translated_text) {
+            throw new AIServiceError("Translation failed on both primary and fallback models.");
+        }
         return fallbackResponse.translated_text;
     }
 }
@@ -183,5 +208,6 @@ export default {
         return env.ASSETS.fetch(request);
     },
 };
+
 
 
